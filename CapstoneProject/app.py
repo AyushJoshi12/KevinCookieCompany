@@ -101,7 +101,7 @@ def replace_slangs(text):
 # Load the pre-trained BART model and tokenizer for text summarization
 def load_model():
 
-    tokenizer_path = r"D:\DSMM Study Material\DSMM Projects\Sem-3 Final Project\Capstone Project\Final Demo\bart_tokenizer"
+    tokenizer_path = "bart_tokenizer"
 
     # Define the folder where the model will be stored
     model_folder = 'bart_model'

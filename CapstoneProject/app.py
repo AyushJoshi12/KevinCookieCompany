@@ -5,6 +5,7 @@ import torch
 import re
 import nltk
 import spacy
+from spacy.cli import download
 import gdown
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
@@ -13,8 +14,12 @@ nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('wordnet')
 
-# Load SpaCy model for tokenization and named entity recognition (NER)
-nlp = spacy.load("en_core_web_sm")
+# Try loading the model, if it fails, download it
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    download("en_core_web_sm")  # This will download the model
+    nlp = spacy.load("en_core_web_sm")
 
 # Function to clean input text by removing unwanted characters, URLs, and other noise
 def remove_special_characters(text):

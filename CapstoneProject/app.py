@@ -1,9 +1,11 @@
+import os
 import streamlit as st
 from transformers import BartForConditionalGeneration, BartTokenizer, BartConfig
 import torch
 import re
 import nltk
 import spacy
+import gdown
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 # Download required NLTK resources for text processing and cleaning
@@ -98,17 +100,34 @@ def replace_slangs(text):
 
 # Load the pre-trained BART model and tokenizer for text summarization
 def load_model():
-    model_path = r"D:\DSMM Study Material\DSMM Projects\Sem-3 Final Project\Capstone Project\Final Demo\bart_model"
+
     tokenizer_path = r"D:\DSMM Study Material\DSMM Projects\Sem-3 Final Project\Capstone Project\Final Demo\bart_tokenizer"
 
-    # Load the model with updated configuration settings
-    config = BartConfig.from_pretrained(model_path)
+    # Define the folder where the model will be stored
+    model_folder = 'bart_model'
+    
+    # Create the folder if it does not exist
+    if not os.path.exists(model_folder):
+        os.makedirs(model_folder)
+
+    config_url = "https://drive.google.com/uc?id=1k2Xv5zAMiD-27tUQzLymMEMkaShkZmqj"
+    generation_config_url = "https://drive.google.com/uc?id=12tKt13ak4k7hLNFYx5s5Fypkb4BRTPWp"
+    model_safetensors_url = "https://drive.google.com/uc?id=1oGx2BCezvbFbCnsPC_ctdSQMIy-Igea9"
+
+    # Download each individual file using gdown
+    gdown.download(config_url, os.path.join(model_folder, 'config.json'), quiet=False)
+    gdown.download(generation_config_url, os.path.join(model_folder, 'generation_config.json'), quiet=False)
+    gdown.download(model_safetensors_url, os.path.join(model_folder, 'model.safetensors'), quiet=False)
+
+    # Load the configuration and model from the downloaded files
+    config = BartConfig.from_pretrained(os.path.join(model_folder, 'config.json'))
     config.update({"early_stopping": True})  # Enable early stopping for summarization
     config.update({"length_penalty": 1.0})  # Control the length of generated summaries
 
-    model = BartForConditionalGeneration.from_pretrained(model_path, config=config)
+    model = BartForConditionalGeneration.from_pretrained(os.path.join(model_folder, 'model.safetensors'), config=config)
     tokenizer = BartTokenizer.from_pretrained(tokenizer_path)
     return model, tokenizer
+
 
 # Function to generate a summary of the input text using the BART model
 def generate_summary(input_text, model, tokenizer):
